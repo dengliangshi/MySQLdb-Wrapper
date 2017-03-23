@@ -164,9 +164,3 @@ class MySQLdbEx(object):
         :Param(str) table: the name of target table
         """
         self.execute('TRUNCATE %s' % table)
-
-if __name__ == '__main__':
-    db = MySQLdbEx(host='139.196.252.154', db_name='trm', port=3306, user='icat', password='JMall666')
-    #sql = 'INSERT INTO USER_Info (ID, email, passwd, register_date, update_time) VALUES (UUID(), "dengliang.shi@justlanguage.com.cn", "sfdffss", NOW(), NOW())'
-    #db.execute(sql)
-    print db.get_one(table='USER_Info')
