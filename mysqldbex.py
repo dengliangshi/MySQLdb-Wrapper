@@ -79,6 +79,7 @@ class MySQLdbEx(object):
         try:
             cursor = self.connection.cursor()
             cursor.execute(sql)
+            self.connection.commit()
         except (AttributeError, MySQLdb.OperationalError):
             self.connect()  # reconnect to mysql service if disconnect
             cursor = self.connection.cursor()
@@ -107,6 +108,17 @@ class MySQLdbEx(object):
               'table_name = %r AND table_schema = %r' % (table, self.db_name))
         return [x['COLUMN_NAME'] for x in self.query(sql)]
 
+    def get_one(self, table, fields='*', conditions=['1',]):
+        """Get one record from database according to given conditions, like:
+        ['field1=value1', 'AND', 'field2>value2', 'OR', 'field3<>value3', ...]
+        :Param(str) table: the name of target table
+        :Param(list) fields: the name of columns whose data will be selected
+        :Param(list) conditions: the conditions for records to be seleted
+        """
+        sql = "SELECT %s FROM %s WHERE %s" % (", ".join(fields), table, ' '.join(conditions))
+        record = [x for x in self.query(sql)]
+        return record[0] if record else []
+
     def get(self, table, fields='*', conditions=['1',]):
         """Get records from database according to given conditions, like:
         ['field1=value1', 'AND', 'field2>value2', 'OR', 'field3<>value3', ...]
@@ -114,7 +126,6 @@ class MySQLdbEx(object):
         :Param(list) fields: the name of columns whose data will be selected
         :Param(list) conditions: the conditions for records to be seleted
         """
-        #if fields == "*": fields = self.get_fields(table)
         sql = "SELECT %s FROM %s WHERE %s" % (", ".join(fields), table, ' '.join(conditions))
         return self.query(sql)
 
@@ -153,3 +164,9 @@ class MySQLdbEx(object):
         :Param(str) table: the name of target table
         """
         self.execute('TRUNCATE %s' % table)
+
+if __name__ == '__main__':
+    db = MySQLdbEx(host='139.196.252.154', db_name='trm', port=3306, user='icat', password='JMall666')
+    #sql = 'INSERT INTO USER_Info (ID, email, passwd, register_date, update_time) VALUES (UUID(), "dengliang.shi@justlanguage.com.cn", "sfdffss", NOW(), NOW())'
+    #db.execute(sql)
+    print db.get_one(table='USER_Info')

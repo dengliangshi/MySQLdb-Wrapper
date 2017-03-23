@@ -30,8 +30,8 @@ print db.get_fields(table='users')
 print db.get('users')
 print list(db.get('users'))
 
-# Get records filted by conditions.
-print list(db.get(table='users', conditions=['job="Teacher"', ]))
+# Get one record filted by conditions.
+print db.get_one(table='users', conditions=['job="Teacher"', ])
 
 # Get specified columns of the records filted by conditions.
 print list(db.get(table='users', fields=['firstname', 'pay'], 

@@ -36,16 +36,19 @@ Table example(table's name is 'users'):
 >> db.get(table='users')
 >> <MySQLdb.cursors.SSDictCursor object at 0x01875F30>
 >> list(db.get(table='users'))
->> ({'Name': u'John Smith', 'FirstName': u'John', 'Pay': 1200L, 
+>> [{'Name': u'John Smith', 'FirstName': u'John', 'Pay': 1200L, 
      'Job': u'Manager', 'LastName': u'Smith', 'ID': 1L}, 
     {'Name': u'Peter Lutz', 'FirstName': u'Peter', 'Pay': 6000L, 
      'Job': u'Teacher', 'LastName': u'Lutz', 'ID': 2L}, 
     {'Name': u'Tom Jones', 'FirstName': u'Tom', 'Pay': 8000L, 
-     'Job': u'Engineer', 'LastName': u'Jones', 'ID': 3L})
+     'Job': u'Engineer', 'LastName': u'Jones', 'ID': 3L}]
 
->> db.get(table='users', fields=['Name', 'Pay'], conditions=['Job="Teacher"', 'OR', 'Job="Engineer"'])
->> ({'Pay': 6000L, 'Name': u'Peter Lutz'}, 
-    {'Pay': 8000L, 'Name': u'Tom Jones'})
+>> db.get_one(table='users', fields=['Name', 'Pay'], conditions=['Job="Teacher"'])
+>> {'Pay': 6000L, 'Name': u'Peter Lutz'}
+
+>> list(db.get(table='users', fields=['Name', 'Pay'], conditions=['Job="Teacher"', 'OR', 'Job="Engineer"']))
+>> [{'Pay': 6000L, 'Name': u'Peter Lutz'}, 
+    {'Pay': 8000L, 'Name': u'Tom Jones'}]
 ```
 
 * Delete an record in any table
