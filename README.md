@@ -34,8 +34,6 @@ Table example(table's name is 'users'):
 * Get records from any table:
 ```
 >> db.get(table='users')
->> <MySQLdb.cursors.SSDictCursor object at 0x01875F30>
->> list(db.get(table='users'))
 >> [{'Name': u'John Smith', 'FirstName': u'John', 'Pay': 1200L, 
      'Job': u'Manager', 'LastName': u'Smith', 'ID': 1L}, 
     {'Name': u'Peter Lutz', 'FirstName': u'Peter', 'Pay': 6000L, 
@@ -46,9 +44,23 @@ Table example(table's name is 'users'):
 >> db.get_one(table='users', fields=['Name', 'Pay'], conditions=['Job="Teacher"'])
 >> {'Pay': 6000L, 'Name': u'Peter Lutz'}
 
->> list(db.get(table='users', fields=['Name', 'Pay'], conditions=['Job="Teacher"', 'OR', 'Job="Engineer"']))
+>> db.get(table='users', fields=['Name', 'Pay'], conditions=['Job="Teacher"', 'OR', 'Job="Engineer"'])
 >> [{'Pay': 6000L, 'Name': u'Peter Lutz'}, 
     {'Pay': 8000L, 'Name': u'Tom Jones'}]
+```
+
+* Get a great number of records from database, `ssget` is recommanded:
+```
+>> db.ssget('users')
+>> <MySQLdb.cursors.SSDictCursor object at 0x7f2db3f12590>
+
+>> list(db.ssget('users'))
+>> [{'Name': u'John Smith', 'FirstName': u'John', 'Pay': 1200L, 
+     'Job': u'Manager', 'LastName': u'Smith', 'ID': 1L}, 
+    {'Name': u'Peter Lutz', 'FirstName': u'Peter', 'Pay': 6000L, 
+     'Job': u'Teacher', 'LastName': u'Lutz', 'ID': 2L}, 
+    {'Name': u'Tom Jones', 'FirstName': u'Tom', 'Pay': 8000L, 
+     'Job': u'Engineer', 'LastName': u'Jones', 'ID': 3L}]
 ```
 
 * Delete an record in any table

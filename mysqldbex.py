@@ -19,7 +19,7 @@ class MySQLdbEx(object):
     """This class is responsible for building up and shutting down connection to mysql server,
         and common database operations.
     """
-    def __init__(self, host, db_name, port=3306, user=None, password=None):
+    def __init__(self, host=None, db_name=None, port=3306, user=None, password=None):
         """Constructor.
         :Param(str) db_host: the host name of mysql server
         :Param(str) db_user: user name to login mysql server
@@ -32,7 +32,8 @@ class MySQLdbEx(object):
         self.password = password
         self.db_name = db_name
         self.connection = None  # client object
-        self.connect()  # connect to mysql server
+        self.ssconnection = None  # client object
+        self.connect()
 
     def __repr__(self):
         """Instance display format.
@@ -52,25 +53,28 @@ class MySQLdbEx(object):
         -Param(str) db_password: user name to login database server
         -Param(str) db_name: the name of database
         """
-        if self.connection is not None:
+        if self.connection is not None or self.ssconnection is None:
             self.disconnect()
-        if self.user is not None:
-            self.connection = MySQLdb.connect(host=self.host, port=self.port, user=self.user,
-                passwd=self.password, db=self.db_name, charset='utf8', cursorclass=MySQLdb.cursors.SSDictCursor)
-        else:
-            self.connection = MySQLdb.connect(host=self.host, port=self.port, db=self.db_name, 
-                charset='utf8', cursorclass=MySQLdb.cursors.DictCursor)
+        self.ssconnection = MySQLdb.connect(host=self.host, port=self.port, user=self.user,
+            passwd=self.password, db=self.db_name, charset='utf8', cursorclass=MySQLdb.cursors.SSDictCursor)
+        self.connection = MySQLdb.connect(host=self.host, port=self.port, user=self.user,
+            passwd=self.password, db=self.db_name, charset='utf8', cursorclass=MySQLdb.cursors.DictCursor)
 
     def disconnect(self):
         """Close the connection to mysql server.
         """
         try:
+            if self.ssconnection is not None:
+                self.ssconnection.close()
+                self.ssconnection = None
             if self.connection is not None:
                 self.connection.close()
                 self.connection = None
         except Exception as e:
             print "Failed to close the connection to database: %s" % e
+        self.ssconnection = None
         self.connection = None
+
 
     def execute(self, sql):
         """Execute SQL command.
@@ -84,6 +88,7 @@ class MySQLdbEx(object):
             self.connect()  # reconnect to mysql service if disconnect
             cursor = self.connection.cursor()
             cursor.execute(sql)
+            self.connection.commit()
         return cursor
 
     def query(self, sql):
@@ -93,12 +98,36 @@ class MySQLdbEx(object):
         try:
             cursor = self.connection.cursor()
             cursor.execute(sql)
+            self.connection.commit()
         except (AttributeError, MySQLdb.OperationalError):
-            print 'Reconnecting!'
             self.connect()  # reconnect to mysql service if disconnect
             cursor = self.connection.cursor()
             cursor.execute(sql)
+            self.connection.commit()
+        return cursor.fetchall()
+
+    def ssquery(self, sql):
+        """Get records from database.
+        :Param(str) sql: SQL command string
+        """
+        try:
+            cursor = self.ssconnection.cursor()
+            cursor.execute(sql)
+        except (AttributeError, MySQLdb.OperationalError):
+            self.connect()  # reconnect to mysql service if disconnect
+            cursor = self.ssconnection.cursor()
+            cursor.execute(sql)
         return cursor
+
+    def is_exists(self, table, conditions):
+        """Check if one or more records exist for given conditions, like:
+        ['field1=value1', 'AND', 'field2>value2', 'OR', 'field3<>value3', ...]
+        :Param(str) table: the name of target table
+        :Param(list) conditions: the conditions for records to be seleted
+        """
+        sql = 'SELECT * FROM %s WHERE %s LIMIT 1' % (table, ' '.join(conditions))
+        record = self.query(sql)
+        return True if record else False
 
     def get_fields(self, table):
         """Get the field names of a table.
@@ -116,8 +145,8 @@ class MySQLdbEx(object):
         :Param(list) conditions: the conditions for records to be seleted
         """
         sql = "SELECT %s FROM %s WHERE %s" % (", ".join(fields), table, ' '.join(conditions))
-        record = [x for x in self.query(sql)]
-        return record[0] if record else []
+        record = self.query(sql)
+        return record[0] if record else {}
 
     def get(self, table, fields='*', conditions=['1',]):
         """Get records from database according to given conditions, like:
@@ -128,6 +157,16 @@ class MySQLdbEx(object):
         """
         sql = "SELECT %s FROM %s WHERE %s" % (", ".join(fields), table, ' '.join(conditions))
         return self.query(sql)
+
+    def ssget(self, table, fields='*', conditions=['1',]):
+        """Get records from database according to given conditions, like:
+        ['field1=value1', 'AND', 'field2>value2', 'OR', 'field3<>value3', ...]
+        :Param(str) table: the name of target table
+        :Param(list) fields: the name of columns whose data will be selected
+        :Param(list) conditions: the conditions for records to be seleted
+        """
+        sql = "SELECT %s FROM %s WHERE %s" % (", ".join(fields), table, ' '.join(conditions))
+        return self.ssquery(sql)
 
     def insert(self, table, data):
         """Add data into database.
