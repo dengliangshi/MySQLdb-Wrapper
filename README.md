@@ -101,7 +101,7 @@ Table example(table's name is 'users'):
 ```
 
 ## Cursor Class
-Default, mysqldb returns query result as rows, but in practice, results as a dict may be more usable. So the cursor class is set to be MySQLdb.cursors.SSDictCursor in this module. In additon, with this cursor class, query results will be saved in server and return a iterator which will save space and maybe enhance efficiency.
+Default, mysqldb returns query result as rows, but in practice, results as a dict may be more usable. So the cursor class is set to be MySQLdb.cursors.DictCursor in this module. For quering for a great number of records, MySQLdb.cursors.ssDictCursor is adopted, with which query results will be saved in server and return a iterator which will save space and maybe enhance efficiency.
 
 ## Timeout Issue
 MySQL server will automatically break the connection to any client which keeps unactive for a certain time, default is 8 hours, and MySQLdb will raise an error when excuting any SQL query in this case. This module deals with this issue by reconnecting to the server when catch the error.
