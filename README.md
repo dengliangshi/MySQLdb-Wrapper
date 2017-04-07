@@ -103,7 +103,7 @@ Table example(table's name is 'users'):
 * Sometimes, the `ID` is wanted after a new record is inserted. One of the reasonable way is to assign the record with an `ID`, then insert with this `ID`. So when `UUID` is adopted, it should be generated before inserting. With this module, `UUID` can be generated like:
 ```
 >> db.uuid()
->> 
+>> 1392ddce-1b74-11e7-966d-f46d04db2563
 ```
 
 ## Cursor Class
