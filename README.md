@@ -100,6 +100,12 @@ Table example(table's name is 'users'):
 >> ()
 ```
 
+* Sometimes, the `ID` is wanted after a new record is inserted. One of the reasonable way is to assign the record with an `ID`, then insert with this `ID`. So when `UUID` is adopted, it should be generated before inserting. With this module, `UUID` can be generated like:
+```
+>> db.uuid()
+>> 
+```
+
 ## Cursor Class
 Default, mysqldb returns query result as rows, but in practice, results as a dict may be more usable. So the cursor class is set to be MySQLdb.cursors.DictCursor in this module. For quering for a great number of records, MySQLdb.cursors.ssDictCursor is adopted, with which query results will be saved in server and return a iterator which will save space and maybe enhance efficiency.
 

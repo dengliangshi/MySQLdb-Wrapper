@@ -75,7 +75,6 @@ class MySQLdbEx(object):
         self.ssconnection = None
         self.connection = None
 
-
     def execute(self, sql):
         """Execute SQL command.
         :Param(str) sql: SQL command string.
@@ -118,6 +117,13 @@ class MySQLdbEx(object):
             cursor = self.ssconnection.cursor()
             cursor.execute(sql)
         return cursor
+
+    def uuid(self):
+        """Generate uuid using the function UUID().
+        """
+        sql = 'SELECT UUID()'
+        record = self.query(sql)
+        return record[0]['UUID()']
 
     def is_exists(self, table, conditions):
         """Check if one or more records exist for given conditions, like:
