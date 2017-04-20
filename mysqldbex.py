@@ -33,18 +33,17 @@ class MySQLdbEx(object):
         self.db_name = db_name
         self.connection = None  # client object
         self.ssconnection = None  # client object
-        self.connect()
 
     def __repr__(self):
         """Instance display format.
         """
         try:
             cursor = self.connection.cursor()
-            cursor.execute('SELECT version()')
+            cursor.execute("SELECT version()")
         except Exception:
-            return '<Server: %s:%d, Status: disconnected>' % (self.host, self.port)
-        return '<Server: %s:%d, Version: %s, Status: connected>' % (self.host, 
-            self.port, cursor.fetchone()['version()'])
+            return "<Server: %s:%d, Status: disconnected>" % (self.host, self.port)
+        return "<Server: %s:%d, Version: %s, Status: connected>" % (self.host, 
+            self.port, cursor.fetchone()["version()"])
 
     def connect(self):
         """ Building up connection to mysql server if not.
@@ -56,9 +55,9 @@ class MySQLdbEx(object):
         if self.connection is not None or self.ssconnection is None:
             self.disconnect()
         self.ssconnection = MySQLdb.connect(host=self.host, port=self.port, user=self.user,
-            passwd=self.password, db=self.db_name, charset='utf8', cursorclass=MySQLdb.cursors.SSDictCursor)
+            passwd=self.password, db=self.db_name, charset="utf8", cursorclass=MySQLdb.cursors.SSDictCursor)
         self.connection = MySQLdb.connect(host=self.host, port=self.port, user=self.user,
-            passwd=self.password, db=self.db_name, charset='utf8', cursorclass=MySQLdb.cursors.DictCursor)
+            passwd=self.password, db=self.db_name, charset="utf8", cursorclass=MySQLdb.cursors.DictCursor)
 
     def disconnect(self):
         """Close the connection to mysql server.
@@ -74,6 +73,7 @@ class MySQLdbEx(object):
             print "Failed to close the connection to database: %s" % e
         self.ssconnection = None
         self.connection = None
+
 
     def execute(self, sql):
         """Execute SQL command.
@@ -119,19 +119,18 @@ class MySQLdbEx(object):
         return cursor
 
     def uuid(self):
-        """Generate uuid using the function UUID().
+        """Generate uuid.
         """
         sql = 'SELECT UUID()'
-        record = self.query(sql)
-        return record[0]['UUID()']
+        return self.query(sql)[0]['UUID()']
 
     def is_exists(self, table, conditions):
         """Check if one or more records exist for given conditions, like:
-        ['field1=value1', 'AND', 'field2>value2', 'OR', 'field3<>value3', ...]
+        ["field1=value1", "AND", "field2>value2", "OR", "field3<>value3", ...]
         :Param(str) table: the name of target table
         :Param(list) conditions: the conditions for records to be seleted
         """
-        sql = 'SELECT * FROM %s WHERE %s LIMIT 1' % (table, ' '.join(conditions))
+        sql = "SELECT * FROM %s WHERE %s LIMIT 1" % (table, " ".join(conditions))
         record = self.query(sql)
         return True if record else False
 
@@ -139,39 +138,39 @@ class MySQLdbEx(object):
         """Get the field names of a table.
         :Param(str) table: the name of target table
         """
-        sql = ('SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE ' +
-              'table_name = %r AND table_schema = %r' % (table, self.db_name))
-        return [x['COLUMN_NAME'] for x in self.query(sql)]
+        sql = ("SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE " +
+              "table_name = %r AND table_schema = %r" % (table, self.db_name))
+        return [x["COLUMN_NAME"] for x in self.query(sql)]
 
-    def get_one(self, table, fields='*', conditions=['1',]):
+    def get_one(self, table, fields="*", conditions=["1",]):
         """Get one record from database according to given conditions, like:
-        ['field1=value1', 'AND', 'field2>value2', 'OR', 'field3<>value3', ...]
+        ["field1=value1", "AND", "field2>value2", "OR", "field3<>value3", ...]
         :Param(str) table: the name of target table
         :Param(list) fields: the name of columns whose data will be selected
         :Param(list) conditions: the conditions for records to be seleted
         """
-        sql = "SELECT %s FROM %s WHERE %s" % (", ".join(fields), table, ' '.join(conditions))
+        sql = "SELECT %s FROM %s WHERE %s" % (", ".join(fields), table, " ".join(conditions))
         record = self.query(sql)
         return record[0] if record else {}
 
-    def get(self, table, fields='*', conditions=['1',]):
+    def get(self, table, fields="*", conditions=["1",]):
         """Get records from database according to given conditions, like:
-        ['field1=value1', 'AND', 'field2>value2', 'OR', 'field3<>value3', ...]
+        ["field1=value1", "AND", "field2>value2", "OR", "field3<>value3", ...]
         :Param(str) table: the name of target table
         :Param(list) fields: the name of columns whose data will be selected
         :Param(list) conditions: the conditions for records to be seleted
         """
-        sql = "SELECT %s FROM %s WHERE %s" % (", ".join(fields), table, ' '.join(conditions))
+        sql = "SELECT %s FROM %s WHERE %s" % (", ".join(fields), table, " ".join(conditions))
         return self.query(sql)
 
-    def ssget(self, table, fields='*', conditions=['1',]):
+    def ssget(self, table, fields="*", conditions=["1",]):
         """Get records from database according to given conditions, like:
-        ['field1=value1', 'AND', 'field2>value2', 'OR', 'field3<>value3', ...]
+        ["field1=value1", "AND", "field2>value2", "OR", "field3<>value3", ...]
         :Param(str) table: the name of target table
         :Param(list) fields: the name of columns whose data will be selected
         :Param(list) conditions: the conditions for records to be seleted
         """
-        sql = "SELECT %s FROM %s WHERE %s" % (", ".join(fields), table, ' '.join(conditions))
+        sql = "SELECT %s FROM %s WHERE %s" % (", ".join(fields), table, " ".join(conditions))
         return self.ssquery(sql)
 
     def insert(self, table, data):
@@ -179,33 +178,44 @@ class MySQLdbEx(object):
         Param(str) table: the name of target table
         Param(dict) data: data in dict, like {field: value, ...}
         """
-        fields = map(lambda x: '%s' % x, data.keys())
-        values = map(lambda x: '%r' % x, data.values())
-        sql = "INSERT INTO %s (%s) VALUES (%s)" % (table, ','.join(fields), ','.join(values))
+        fields = []
+        values = []
+        for key, value in data.items():
+            if isinstance(value, unicode) or isinstance(value, str):
+                values.append(("'%s'" % value))
+            else:
+                values.append(("%r" % value))
+            fields.append(key)
+        sql = "INSERT INTO %s (%s) VALUES (%s)" % (table, ",".join(fields), ",".join(values))
         return self.execute(sql).lastrowid
 
-    def delete(self, table, conditions=['1', ]):
+    def delete(self, table, conditions=["1", ]):
         """Delete records in database accoridng to given conditions, like:
-        ['field1=value1', 'AND', 'field2>value2', 'OR', 'field3<>value3', ...]
+        ["field1=value1", "AND", "field2>value2", "OR", "field3<>value3", ...]
         :Param(str) table: the name of target table
         :Param(list) conditions: the conditions for records to be deleted
         """
-        sql = "DELETE FROM %s WHERE %s" % (table, ' '.join(conditions))
+        sql = "DELETE FROM %s WHERE %s" % (table, " ".join(conditions))
         return self.execute(sql).rowcount
 
-    def update(self, table, data, conditions=['1', ]):
+    def update(self, table, data, conditions=["1", ]):
         """Modify the value of existing record specified by conditions, like:
-        ['field1=value1', 'AND', 'field2>value2', 'OR', 'field3<>value3', ...]
+        ["field1=value1", "AND", "field2>value2", "OR", "field3<>value3", ...]
         :Param(str) table: the name of target table
         :Param(dict) data: new data
         :Param(list) conditions: the conditions for records to be modified
         """
-        values = ", ".join([("%s=%r" % (key, value)) for key, value in data.items()])
-        sql = "UPDATE %s SET %s WHERE %s" % (table, values, ' '.join(conditions))
+        values = []
+        for key, value in data.items():
+            if isinstance(value, unicode) or isinstance(value, str):
+                values.append(("%s='%s'" % (key, value)))
+            else:
+                values.append(("%s=%r" % (key, value)))
+        sql = "UPDATE %s SET %s WHERE %s" % (table, ", ".join(values), " ".join(conditions))
         return self.execute(sql).rowcount
 
     def clear_table(self, table):
         """Delete all records in a table.
         :Param(str) table: the name of target table
         """
-        self.execute('TRUNCATE %s' % table)
+        self.execute("TRUNCATE %s" % table)
