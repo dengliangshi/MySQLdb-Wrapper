@@ -11,6 +11,7 @@ Build up connection to MySQL server using this module:
                 user='root',       # user account for connecting to MySQL server, default is None
                 password='123456', # password for connecting to MySQL server, default is None
                 db_name='test')    # database name
+>> db.connect()
 >> db
 >> <Server: localhost:3306, Version: 5.6.31-log, Status: connected>
 >> db  # if disconnect
@@ -34,19 +35,22 @@ Table example(table's name is 'users'):
 * Get records from any table:
 ```
 >> db.get(table='users')
->> <MySQLdb.cursors.SSDictCursor object at 0x01875F30>
->> list(db.get(table='users'))
->> ({'Name': u'John Smith', 'FirstName': u'John', 'Pay': 1200L, 
+>> [{'Name': u'John Smith', 'FirstName': u'John', 'Pay': 1200L, 
      'Job': u'Manager', 'LastName': u'Smith', 'ID': 1L}, 
     {'Name': u'Peter Lutz', 'FirstName': u'Peter', 'Pay': 6000L, 
      'Job': u'Teacher', 'LastName': u'Lutz', 'ID': 2L}, 
     {'Name': u'Tom Jones', 'FirstName': u'Tom', 'Pay': 8000L, 
-     'Job': u'Engineer', 'LastName': u'Jones', 'ID': 3L})
+     'Job': u'Engineer', 'LastName': u'Jones', 'ID': 3L}]
+
+>> db.get_one(table='users', fields=['Name', 'Pay'], conditions=['Job="Teacher"'])
+>> {'Pay': 6000L, 'Name': u'Peter Lutz'}
 
 >> db.get(table='users', fields=['Name', 'Pay'], conditions=['Job="Teacher"', 'OR', 'Job="Engineer"'])
->> ({'Pay': 6000L, 'Name': u'Peter Lutz'}, 
-    {'Pay': 8000L, 'Name': u'Tom Jones'})
+>> [{'Pay': 6000L, 'Name': u'Peter Lutz'}, 
+    {'Pay': 8000L, 'Name': u'Tom Jones'}]
 ```
+
+
 
 * Delete an record in any table
 ```
@@ -85,8 +89,27 @@ Table example(table's name is 'users'):
 >> ()
 ```
 
+* Sometimes, the `ID` is wanted after a new record is inserted. One of the reasonable way is to assign the record with an `ID`, then insert with this `ID`. So when `UUID` is adopted, it should be generated before inserting. With this module, `UUID` can be generated like:
+```
+>> db.uuid()
+>> 1392ddce-1b74-11e7-966d-f46d04db2563
+```
+
+* For paged query, function `count` and 'get_page' are given.
+```
+>> db.count(table='users')
+>> 3
+>> db.get_page(table='users', page=0, number=10)
+>> [{'Name': u'John Smith', 'FirstName': u'John', 'Pay': 1200L, 
+     'Job': u'Manager', 'LastName': u'Smith', 'ID': 1L}, 
+    {'Name': u'Peter Lutz', 'FirstName': u'Peter', 'Pay': 6000L, 
+     'Job': u'Teacher', 'LastName': u'Lutz', 'ID': 2L}, 
+    {'Name': u'Tom Jones', 'FirstName': u'Tom', 'Pay': 8000L, 
+     'Job': u'Engineer', 'LastName': u'Jones', 'ID': 3L}]
+```
+
 ## Cursor Class
-Default, mysqldb returns query result as rows, but in practice, results as a dict may be more usable. So the cursor class is set to be MySQLdb.cursors.SSDictCursor in this module. In additon, with this cursor class, query results will be saved in server and return a iterator which will save space and maybe enhance efficiency.
+Default, mysqldb returns query result as rows, but in practice, results as a dict may be more usable. So the cursor class is set to be MySQLdb.cursors.DictCursor in this module. 
 
 ## Timeout Issue
 MySQL server will automatically break the connection to any client which keeps unactive for a certain time, default is 8 hours, and MySQLdb will raise an error when excuting any SQL query in this case. This module deals with this issue by reconnecting to the server when catch the error.
