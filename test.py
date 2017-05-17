@@ -47,10 +47,13 @@ print '\n'
 print db.count(table='users')
 
 # Get a specified page of records
-print db.get_page(table='users', page=0, number=10)
+print db.get_page(table='users', page=0, number=10, order='Name ASC')
 
 # Get all records in a table.
 print db.get('users')
+
+# Get one record filted by conditions.
+print db.get_one(table='users', conditions=['job="Teacher"', ])
 
 # Get one record filted by conditions.
 print db.get_one(table='users', conditions=['job="Teacher"', ])

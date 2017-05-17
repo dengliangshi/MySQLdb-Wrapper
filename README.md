@@ -50,8 +50,6 @@ Table example(table's name is 'users'):
     {'Pay': 8000L, 'Name': u'Tom Jones'}]
 ```
 
-
-
 * Delete an record in any table
 ```
 >> db.delete(table='users', conditions=['FirstName="John"', 'AND', 'LastName="Smith"'])
@@ -99,7 +97,7 @@ Table example(table's name is 'users'):
 ```
 >> db.count(table='users')
 >> 3
->> db.get_page(table='users', page=0, number=10)
+>> db.get_page(table='users', page=0, number=10, order='Name ASC')
 >> [{'Name': u'John Smith', 'FirstName': u'John', 'Pay': 1200L, 
      'Job': u'Manager', 'LastName': u'Smith', 'ID': 1L}, 
     {'Name': u'Peter Lutz', 'FirstName': u'Peter', 'Pay': 6000L, 

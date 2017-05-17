@@ -38,11 +38,11 @@ class MySQLdbEx(object):
         """
         try:
             cursor = self.connection.cursor()
-            cursor.execute('SELECT version()')
+            cursor.execute("SELECT version()")
         except Exception:
-            return '<Server: %s:%d, Status: disconnected>' % (self.host, self.port)
-        return '<Server: %s:%d, Version: %s, Status: connected>' % (self.host, 
-            self.port, cursor.fetchone()['version()'])
+            return "<Server: %s:%d, Status: disconnected>" % (self.host, self.port)
+        return "<Server: %s:%d, Version: %s, Status: connected>" % (self.host, 
+            self.port, cursor.fetchone()["version()"])
 
     def connect(self):
         """ Building up connection to mysql server if not.
@@ -97,6 +97,7 @@ class MySQLdbEx(object):
             self.connection.commit()
         return cursor.fetchall()
 
+
     def uuid(self):
         """Generate uuid using the function UUID().
         """
@@ -114,13 +115,40 @@ class MySQLdbEx(object):
         record = self.query(sql)
         return True if record else False
 
+    def uuid(self):
+        """Generate uuid.
+        """
+        sql = "SELECT UUID() AS 'uuid'"
+        return self.query(sql)[0]['uuid']
+
+    def is_exists(self, table, conditions):
+        """Check if one or more records exist for given conditions, like:
+        ["field1=value1", "AND", "field2>value2", "OR", "field3<>value3", ...]
+        :Param(str) table: the name of target table
+        :Param(list) conditions: the conditions for records to be seleted
+        """
+        sql = "SELECT * FROM %s WHERE %s LIMIT 1" % (table, " ".join(conditions))
+        record = self.query(sql)
+        return True if record else False
+
     def get_fields(self, table):
         """Get the field names of a table.
         :Param(str) table: the name of target table
         """
-        sql = ('SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE ' +
-              'table_name = %r AND table_schema = %r' % (table, self.db_name))
-        return [x['COLUMN_NAME'] for x in self.query(sql)]
+        sql = ("SELECT COLUMN_NAME FROM information_schema.COLUMNS WHERE " +
+              "table_name = %r AND table_schema = %r" % (table, self.db_name))
+        return [x["COLUMN_NAME"] for x in self.query(sql)]
+
+    def get_one(self, table, fields="*", conditions=["1",]):
+        """Get one record from database according to given conditions, like:
+        ["field1=value1", "AND", "field2>value2", "OR", "field3<>value3", ...]
+        :Param(str) table: the name of target table
+        :Param(list) fields: the name of columns whose data will be selected
+        :Param(list) conditions: the conditions for records to be seleted
+        """
+        sql = "SELECT %s FROM %s WHERE %s" % (", ".join(fields), table, " ".join(conditions))
+        record = self.query(sql)
+        return record[0] if record else {}
 
     def count(self, table, conditions=["1",]):
         """Count records from database according to given conditions, like:
@@ -156,15 +184,25 @@ class MySQLdbEx(object):
         record = self.query(sql)
         return record[0] if record else {}
 
-    def get(self, table, fields='*', conditions=['1',]):
+    def get(self, table, fields="*", conditions=["1",]):
         """Get records from database according to given conditions, like:
-        ['field1=value1', 'AND', 'field2>value2', 'OR', 'field3<>value3', ...]
+        ["field1=value1", "AND", "field2>value2", "OR", "field3<>value3", ...]
         :Param(str) table: the name of target table
         :Param(list) fields: the name of columns whose data will be selected
         :Param(list) conditions: the conditions for records to be seleted
         """
-        sql = "SELECT %s FROM %s WHERE %s" % (", ".join(fields), table, ' '.join(conditions))
+        sql = "SELECT %s FROM %s WHERE %s" % (", ".join(fields), table, " ".join(conditions))
         return self.query(sql)
+
+    def ssget(self, table, fields="*", conditions=["1",]):
+        """Get records from database according to given conditions, like:
+        ["field1=value1", "AND", "field2>value2", "OR", "field3<>value3", ...]
+        :Param(str) table: the name of target table
+        :Param(list) fields: the name of columns whose data will be selected
+        :Param(list) conditions: the conditions for records to be seleted
+        """
+        sql = "SELECT %s FROM %s WHERE %s" % (", ".join(fields), table, " ".join(conditions))
+        return self.ssquery(sql)
 
     def insert(self, table, data):
         """Add data into database.
@@ -182,13 +220,13 @@ class MySQLdbEx(object):
         sql = "INSERT INTO %s (%s) VALUES (%s)" % (table, ",".join(fields), ",".join(values))
         return self.execute(sql).lastrowid
 
-    def delete(self, table, conditions=['1', ]):
+    def delete(self, table, conditions=["1", ]):
         """Delete records in database accoridng to given conditions, like:
-        ['field1=value1', 'AND', 'field2>value2', 'OR', 'field3<>value3', ...]
+        ["field1=value1", "AND", "field2>value2", "OR", "field3<>value3", ...]
         :Param(str) table: the name of target table
         :Param(list) conditions: the conditions for records to be deleted
         """
-        sql = "DELETE FROM %s WHERE %s" % (table, ' '.join(conditions))
+        sql = "DELETE FROM %s WHERE %s" % (table, " ".join(conditions))
         return self.execute(sql).rowcount
 
     def update(self, table, data, conditions=["1", ]):
@@ -211,4 +249,4 @@ class MySQLdbEx(object):
         """Delete all records in a table.
         :Param(str) table: the name of target table
         """
-        self.execute('TRUNCATE %s' % table)
+        self.execute("TRUNCATE %s" % table)
