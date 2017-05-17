@@ -93,7 +93,7 @@ Table example(table's name is 'users'):
 >> 1392ddce-1b74-11e7-966d-f46d04db2563
 ```
 
-* For paged query, function `count` and 'get_page' are given.
+* For paged query, function `count` and `get_page` are given.
 ```
 >> db.count(table='users')
 >> 3
