@@ -1,5 +1,5 @@
 # MySQLdb Wrapper
-A simple wrapper for MySQLdb, supports comman database operations with friendly interfaces.
+A simple wrapper for MySQLdb, supports common database operations with friendly interfaces.
 
 ## Usage
 Build up connection to MySQL server using this module: 
