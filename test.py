@@ -14,11 +14,9 @@ from mysqldbex import MySQLdbEx
 db = MySQLdbEx(host='localhost', user='root', password='ydm830025', db_name='mysqldb')
 print db.connect()
 print db
-print '\n'
 
 # generate uuid
 print db.uuid()
-print '\n'
 
 # ---------------------------------------------------------Tests------------------------------------------------------------
 """
@@ -37,11 +35,9 @@ print db.insert(table='users', data={'Name': 'Peter Lutz', 'FirstName': 'Peter',
         'Job': 'Teacher', 'LastName': 'Lutz'})
 print db.insert(table='users', data={'Name': 'Tom Jones', 'FirstName': 'Tom', 'Pay': 8000, 
         'Job': 'Engineer', 'LastName': 'Jones'})
-print '\n'
 
 # Get the column name of a table. 
 print db.get_fields(table='users')
-print '\n'
 
 # Count the number of records
 print db.count(table='users')
@@ -80,5 +76,5 @@ print db.update(table='users', data={'Pay': 9000}, conditions=['Name="John Smith
 print db.get(table='users', fields=['Name', 'Pay'])
 
 # Clear up a table
-db.clear_table(table='users')
+print db.clear_table(table='users')
 print db.get(table='users')
