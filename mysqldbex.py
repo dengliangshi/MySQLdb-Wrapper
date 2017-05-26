@@ -102,6 +102,7 @@ class MySQLdbEx(object):
         cursor = self._connection.cursor()
         try:
             cursor.execute(sql)
+            self._connection.commit()
             return cursor.fetchall()
         finally:
             cursor.close()
